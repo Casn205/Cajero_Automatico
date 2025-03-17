@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nequi</title>
+    <link rel="stylesheet" href="../css/Nequi.css">
+    <script src="../ValidarDatos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="../assets/LogoNequi.png" alt="Logo Nequi" class="logo">
+        </div>
+
+        <div class="dynamic-key-section">
+            <span class="key-label">clave de temporal:</span>
+            <div class="dynamic-key" id="dynamicKey">------</div>
+            <div class="timer" id="timer">La clave cambiará en: 60 segundos</div>
+        </div>
+
+        <div class="form-group">
+            <label for="numeroIdentificacion">Ingrese su numero:</label>
+            <input type="text" id="numeroIdentificacion" maxlength="10"
+                placeholder="Ingrese un numero de máximo 10 dígitos">
+            <div class="error" id="errorNumero">Debe ingresar solo números (máximo 10 dígitos)</div>
+        </div>
+
+        <div class="form-group">
+            <label for="codigoAcceso">Código de acceso:</label>
+            <input type="text" id="codigoAcceso" maxlength="6" placeholder="Ingrese la clave de máximo 6 dígitos">
+            <div class="error" id="errorCodigo">Ingrese la clave temporal (máximo 6 dígitos)</div>
+        </div>
+
+        <button id="btnEnviar">Siguiente</button>
+    </div>
+
+    <script>
+        let tiempoRestante = 60;
+        let intervalo;
+        let ClaveDinamica;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Generar clave inicial
+            ClaveDinamica = GenerarClave();
+            document.getElementById('dynamicKey').textContent = ClaveDinamica;
+
+            // Iniciar contador
+            intervalo = setInterval(function () {
+                tiempoRestante--;
+                document.getElementById('timer').textContent = `La clave cambiará en: ${tiempoRestante} segundos`;
+
+                if (tiempoRestante <= 0) {
+                    tiempoRestante = 60;
+                    ClaveDinamica = GenerarClave();
+                    document.getElementById('dynamicKey').textContent = ClaveDinamica;
+                }
+            }, 1000);
+
+            // Validación para permitir solo números en los campos
+            document.getElementById('numeroIdentificacion').addEventListener('keypress', function (e) {
+                if (!/\d/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            document.getElementById('codigoAcceso').addEventListener('keypress', function (e) {
+                if (!/\d/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            document.getElementById('btnEnviar').addEventListener('click', function () {
+                const numero = document.getElementById('numeroIdentificacion').value;
+                const codigo = document.getElementById('codigoAcceso').value;
+
+                if (numero.length == 10 && codigo.length == 6) {
+                    Control(numero, "Nequi", codigo, ClaveDinamica, "#6600FF", "../assets/LogoNequi.png");
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Datos incorrectos",
+                        text: "El numero debe tener 10 digitos y la clave 6 digitos",
+                    });
+                }
+
+            });
+        });
+    </script>
+</body>
+
+</html>

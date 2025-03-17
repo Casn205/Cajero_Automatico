@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados del Retiro</title>
+    <link rel="stylesheet" href="../css/Resultados.css">
+</head>
+<body>
+    <div class="container">
+        
+        <div class="summary">
+            <h2>Monto Retirado</h2>
+            <div class="amount" id="montoRetirado">$0</div>
+        </div>
+        
+        <h2>Distribución de Billetes</h2>
+        <div class="matrices-container" id="matricesContainer">
+            <!-- Las matrices se cargarán aquí dinámicamente -->
+        </div>
+        
+        <div class="bills-summary">
+            <h2>Resumen de Billetes</h2>
+            <div id="resumenBilletes">
+                <!-- El resumen de billetes se cargará aquí -->
+            </div>
+        </div>
+        
+        <div class="projection">
+            <h2>Proyección para 1000 Retiros Similares</h2>
+            <p>Si se realizaran 1000 retiros del mismo monto, se necesitarían:</p>
+            <div id="proyeccionBilletes">
+                <!-- La proyección se cargará aquí -->
+            </div>
+        </div>
+        
+        <button class="back-button" onclick="window.location.href='../Principal.html'">Realizar Otro Retiro</button>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Recuperar los resultados del localStorage
+            const resultadosJSON = localStorage.getItem('resultadosDispensador');
+            if (!resultadosJSON) {
+                alert('No se encontraron resultados. Redirigiendo...');
+                window.location.href = 'Principal.html';
+                return;
+            }
+            
+            const resultados = JSON.parse(resultadosJSON);
+            
+            // Mostrar el monto retirado
+            document.getElementById('montoRetirado').textContent = '$' + resultados.valor.toLocaleString('es-CO');
+            
+            // Mostrar las matrices
+            const matricesContainer = document.getElementById('matricesContainer');
+            resultados.matrices.forEach((matriz, index) => {
+                const matrizDiv = document.createElement('div');
+                matrizDiv.className = 'matrix';
+                matrizDiv.innerHTML = `<h3>Matriz ${index + 1}</h3>`;
+                
+                const tabla = document.createElement('table');
+                for (let i = 0; i < matriz.length; i++) {
+                    const fila = document.createElement('tr');
+                    for (let j = 0; j < matriz[i].length; j++) {
+                        const celda = document.createElement('td');
+                        celda.textContent = matriz[i][j] > 0 ? '$' + matriz[i][j].toLocaleString('es-CO') : '-';
+                        fila.appendChild(celda);
+                    }
+                    tabla.appendChild(fila);
+                }
+                
+                matrizDiv.appendChild(tabla);
+                matricesContainer.appendChild(matrizDiv);
+            });
+            
+            // Mostrar el resumen de billetes
+            const resumenBilletes = document.getElementById('resumenBilletes');
+            let resumenHTML = '';
+            
+            resultados.cantidadBilletes.forEach((cantidad, index) => {
+                if (cantidad > 0) {
+                    resumenHTML += `
+                        <div class="bill-detail">
+                            <span>${cantidad} billetes de $${resultados.valoresBilletes[index].toLocaleString('es-CO')}</span>
+                            <span>$${(cantidad * resultados.valoresBilletes[index]).toLocaleString('es-CO')}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            resumenHTML += `<div class="bill-detail" style="font-weight: bold; margin-top: 15px;">
+                <span>Total</span>
+                <span>$${resultados.acumulado.toLocaleString('es-CO')}</span>
+            </div>`;
+            
+            resumenBilletes.innerHTML = resumenHTML;
+            
+            // Mostrar la proyección para 1000 retiros
+            const proyeccionBilletes = document.getElementById('proyeccionBilletes');
+            let proyeccionHTML = '';
+            
+            resultados.billetesParaMil.forEach((cantidad, index) => {
+                if (cantidad > 0) {
+                    proyeccionHTML += `
+                        <div class="bill-detail">
+                            <span>${cantidad.toLocaleString('es-CO')} billetes de $${resultados.valoresBilletes[index].toLocaleString('es-CO')}</span>
+                            <span>$${(cantidad * resultados.valoresBilletes[index]).toLocaleString('es-CO')}</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            proyeccionHTML += `<div class="bill-detail" style="font-weight: bold; margin-top: 15px;">
+                <span>Total para 1000 retiros</span>
+                <span>$${(resultados.acumulado * 1000).toLocaleString('es-CO')}</span>
+            </div>`;
+            
+            proyeccionBilletes.innerHTML = proyeccionHTML;
+        });
+    </script>
+</body>
+</html>

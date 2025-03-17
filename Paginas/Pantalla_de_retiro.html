@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Retiro de Dinero</title>
+    <link rel="stylesheet" href="../css/Retiro.css">
+    <script src="../DispensarBilletes.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="../assets/LogoNequi.png" alt="Logo Nequi" class="logo">
+        </div>
+
+        <div class="user-info">
+            <div class="user-info-text">
+                Número: <span class="phone-number" id="userPhoneNumber">30012304567</span>
+            </div>
+            <div class="key-value" id="userKey">ABC123</div>
+        </div>
+
+        <h2>Selecciona el monto a retirar</h2>
+
+        <div class="amount-options">
+            <div class="amount-option" data-value="20000" onclick="seleccionarMonto(this)">
+                <div class="amount-value">$20.000</div>
+            </div>
+            <div class="amount-option" data-value="50000" onclick="seleccionarMonto(this)">
+                <div class="amount-value">$50.000</div>
+            </div>
+            <div class="amount-option" data-value="100000" onclick="seleccionarMonto(this)">
+                <div class="amount-value">$100.000</div>
+            </div>
+            <div class="amount-option" data-value="200000" onclick="seleccionarMonto(this)">
+                <div class="amount-value">$200.000</div>
+            </div>
+            <div class="amount-option" data-value="300000" onclick="seleccionarMonto(this)">
+                <div class="amount-value">$300.000</div>
+            </div>
+            <div class="amount-option" data-value="500000" onclick="seleccionarMonto(this)">
+                <div class="amount-value">$500.000</div>
+            </div>
+        </div>
+
+        <div class="custom-amount" id="customAmountSection" onclick="MontoLibre()">
+            <div class="custom-amount-header">
+                <h3 class="custom-amount-title">Otro valor</h3>
+            </div>
+            <div class="custom-amount-input" id="customAmountInput">
+                <input type="number" id="customAmount" placeholder="Ingrese un valor maximo de 2.500.000">
+                <div class="error-message" id="amountError">Ingrese un monto valido</div>
+            </div>
+        </div>
+
+        <button id="btnContinuar" onclick="continuarRetiro()">Continuar</button>
+    </div>
+
+    <script>
+        // Variable para almacenar el monto seleccionado
+        let selectedAmount = null;
+
+        // Función para obtener parámetros de la URL
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                phoneNumber: params.get('numero') || '3001234567',
+                accessKey: params.get('clave') || 'ABC123',
+                color: params.get('color') || '#0095ff', // Color por defecto
+                logo: params.get('logo') || '../assets/LogoNequi.png' // Logo por defecto
+            };
+        }
+
+        // Función para seleccionar un monto fijo
+        function seleccionarMonto(element) {
+            // Limpiar selección previa
+            LimpiarMonto();
+
+            // Marcar como seleccionado
+            element.classList.add('selected');
+            selectedAmount = parseInt(element.getAttribute('data-value'));
+
+            // Ocultar entrada personalizada si estaba visible
+            document.getElementById('customAmountInput').classList.remove('visible');
+            document.getElementById('customAmountSection').classList.remove('selected');
+        }
+
+        // Función para seleccionar monto personalizado
+        function MontoLibre() {
+            LimpiarMonto();
+
+            // Marcar sección personalizada como seleccionada
+            document.getElementById('customAmountSection').classList.add('selected');
+            document.getElementById('customAmountInput').classList.add('visible');
+
+            // Enfocar el input
+            document.getElementById('customAmount').focus();
+        }
+
+        // Limpiar todas las selecciones
+        function LimpiarMonto() {
+            const options = document.querySelectorAll('.amount-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById('customAmountSection').classList.remove('selected');
+        }
+
+        function continuarRetiro() {
+            if (document.getElementById('customAmountSection').classList.contains('selected')) {
+                selectedAmount = parseInt(document.getElementById('customAmount').value);
+            }
+
+            if (!selectedAmount || isNaN(selectedAmount) || selectedAmount % 10000 != 0 || selectedAmount>2_500_000) {
+                document.getElementById('amountError').style.display = 'block';
+                Swal.fire({
+                    icon: "error",
+                    title: "Monto incorrecto",
+                    text: "El monto ingresado no es correcto. Proceso de retiro finalizado",
+                    confirmButtonText: "Ir a inicio",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '../Principal.html';
+                    }
+                });
+                return;
+            }
+            DispensarBilletes(selectedAmount);
+        }
+
+
+        // Cargar datos del usuario al iniciar
+        document.addEventListener('DOMContentLoaded', function () {
+            const userData = getUrlParams();
+
+            document.getElementById('userPhoneNumber').textContent = userData.phoneNumber;
+            document.getElementById('userKey').textContent = userData.accessKey;
+
+            // Cambiar color del botón y otros elementos
+            document.getElementById('btnContinuar').style.backgroundColor = userData.color;
+
+            // Cambiar el logo
+            document.querySelector('.logo').src = userData.logo;
+
+            // Validación para permitir solo números en los campos
+            document.getElementById('customAmount').addEventListener('keypress', function (e) {
+                if (!/\d/.test(e.key)) {
+                    e.preventDefault();
+                    LimpiarMonto();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

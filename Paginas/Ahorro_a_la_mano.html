@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nequi</title>
+    <link rel="stylesheet" href="../css/Nequi.css">
+    <script src="../ValidarDatos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="../assets/Ahorro a la mano.png" alt="Logo Nequi" class="logo">
+        </div>
+        
+        <div class="form-group">
+            <label for="numeroIdentificacion">Ingrese su numero:</label>
+            <input type="text" id="numeroIdentificacion" maxlength="11" placeholder="Ingrese un numero de 11 dígitos. Debe iniciar con 1/0 y ser preseguido por un 3">
+            <div class="error" id="errorNumero">Debe ingresar un numero de 11 dígitos</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="codigoAcceso">Clave:</label>
+            <input type="password" id="codigoAcceso" maxlength="4" placeholder="Ingrese su clave de 4 dígitos">
+            <div class="error" id="errorCodigo">la clave deben ser 4 dígitos</div>
+        </div>
+        
+        <button id="btnEnviar">Siguiente</button>
+    </div>
+
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Validaciónes para permitir solo números en los campos
+            document.getElementById('numeroIdentificacion').addEventListener('keypress', function(e) {
+                if (!/\d/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+            
+            document.getElementById('codigoAcceso').addEventListener('keypress', function(e) {
+                if (!/\d/.test(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            document.getElementById('btnEnviar').addEventListener('click', function() {
+                const numero = document.getElementById('numeroIdentificacion').value;
+                const codigo = document.getElementById('codigoAcceso').value;
+                
+                if (numero.length==11 && codigo.length==4) {
+                    Control(numero, "Ahorro", codigo, null,"#FFD200","../assets/Ahorro a la mano.png");
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Datos incorrectos",
+                        text: "El numero debe tener 11 digitos (Debe iniciar con 1/0 y ser preseguido por un 3) y la clave debe tener 4 digitos",
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
